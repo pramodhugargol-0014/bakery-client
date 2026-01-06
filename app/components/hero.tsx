@@ -5,6 +5,9 @@ import itemsList from "./variables/itemsList";
 export default function Hero() {
     const { items, Prediction } = itemsList;
 
+const dayName = new Date().toLocaleDateString("en-US", {
+  weekday: "long",
+});
 
     // Safety guard (keep this)
     if (items.length !== Prediction[0].length) {
@@ -24,7 +27,7 @@ export default function Hero() {
             <div className="max-w-2xl mx-auto">
 
                 <h1 className="text-2xl font-bold mb-6">
-                    Today’s Production Prediction
+                   {dayName} Prediction
                 </h1>
 
                 {/* SHOW ONLY NON-ZERO ITEMS */}

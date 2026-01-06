@@ -2,36 +2,24 @@ import Link from "next/link";
 
 const Navbar: React.FC = () => {
   return (
-    <nav className="fixed top-0 left-0 w-full h-16 bg-gray-900 text-white flex items-center justify-between px-8 z-50">
-      {/* Logo */}
-      <div className="text-xl font-bold">
-        <Link href="/">Fortune Teller</Link>
-      </div>
+    <nav className="fixed top-0 left-0 w-full h-16 bg-gray-900 text-white z-50">
+  <div className="mx-auto h-full flex items-center justify-between px-4 sm:px-8">
+    
+    {/* Logo */}
+    <div className="text-lg sm:text-xl font-bold truncate">
+      <Link href="/">Fortune Teller</Link>
+    </div>
 
-      {/* Links */}
-      <ul className="flex space-x-6">
-        <li>
-          <Link href="/" className="hover:text-cyan-400 transition">
-            Home
-          </Link>
-        </li>
-        <li>
-          <Link href="/about" className="hover:text-cyan-400 transition">
-            About
-          </Link>
-        </li>
-        <li>
-          <Link href="/services" className="hover:text-cyan-400 transition">
-            Services
-          </Link>
-        </li>
-        <li>
-          <Link href="/contact" className="hover:text-cyan-400 transition">
-            Contact
-          </Link>
-        </li>
-      </ul>
-    </nav>
+    {/* Right side */}
+    <ul className="flex items-center space-x-4 sm:space-x-6">
+      <li className="text-sm sm:text-base font-semibold whitespace-nowrap">
+        {new Date().toLocaleDateString("en-GB")}
+      </li>
+    </ul>
+
+  </div>
+</nav>
+
   );
 };
 
