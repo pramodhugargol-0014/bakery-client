@@ -1,51 +1,127 @@
 "use client";
 
 import itemsList from "./variables/itemsList";
+import { useEffect, useState } from "react";
+import { ChevronDown, Plus } from 'lucide-react';
+import { Spinner } from "@/components/ui/spinner";
+
+import axios from "axios";
+import { ProductionTable } from "./productionTable";
+type PredictionResponse = {
+    day_num: number;
+    prediction: number[];
+    weekend: number;
+};
+
+type ProduceItem = {
+    name: string;
+    quantity: number;
+};
+
 
 export default function Hero() {
-    const { items, Prediction } = itemsList;
+    const { items } = itemsList;
 
-const dayName = new Date().toLocaleDateString("en-US", {
-  weekday: "long",
-});
+    const [toProduce, setToProduce] = useState<ProduceItem[]>([]);
+    const [loading, setLoading] = useState(true);
 
-    // Safety guard (keep this)
-    if (items.length !== Prediction[0].length) {
-        throw new Error("Items and Prediction length mismatch");
-    }
+    useEffect(() => {
+        axios
+            .post<PredictionResponse>("/api/predict")
+            .then((res) => {
+                const { prediction } = res.data;
 
-    // Map prediction to readable structure
-    const mapped = Prediction[0].map((qty: number, index: number) => ({
-        item: items[index],
-        quantity: qty,
-    }));
+                // Safety check
+                if (items.length !== prediction.length) {
+                    throw new Error("Items and prediction length mismatch");
+                }
 
-    const toProduce = mapped.filter(p => p.quantity > 0);
+                // Map prediction → readable UI data
+                const mapped: ProduceItem[] = prediction.map(
+                    (qty: number, index: number) => ({
+                        name: items[index],
+                        quantity: qty,
+                    })
+                );
+
+                // Keep only non-zero quantities
+                setToProduce(mapped.filter((p) => p.quantity > 0));
+            })
+            .catch(console.error)
+            .finally(() => setLoading(false));
+    }, [items]);
 
     return (
-<section className=" bg-gray-900 text-white pt-16">
-            <div className="max-w-2xl mx-auto">
+        <div className="max-w-360 mx-auto px-8 py-8">
+            {/* Page Header */}
+            <div className="mb-8">
+                <h1 className="text-4xl font-bold text-slate-900 mb-4">Production Dashboard</h1>
+                <div className="h-px bg-slate-200"></div>
+            </div>
 
-                <h1 className="text-2xl font-bold mb-6">
-                   {dayName} Prediction
-                </h1>
+            {/* Section Title */}
+            <h2 className="text-xl font-semibold text-slate-800 mb-6">Today's Baking List</h2>
 
-                {/* SHOW ONLY NON-ZERO ITEMS */}
-                <div className="space-y-2">
-                    {toProduce.map((p) => (
-                        <div
-                            key={p.item}
-                            className="flex justify-between bg-gray-800 p-3 rounded"
+            {/* Filters and Action Button */}
+            <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center gap-4">
+                    {/* Category Filter */}
+                    <div className="relative">
+                        <select
+                            // value={category}
+                            // onChange={(e) => setCategory(e.target.value)}
+                            className="appearance-none bg-white border border-slate-300 rounded-lg px-4 py-2.5 pr-10 text-sm text-slate-700 hover:border-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-pointer"
                         >
-                            <span>{p.item}</span>
-                            <span className="font-bold">{p.quantity}</span>
+                            <option>All</option>
+                            <option>Pastries</option>
+                            <option>Bread</option>
+                            <option>Cookies</option>
+                        </select>
+                        <div className="absolute inset-y-0 right-3 flex items-center pointer-events-none">
+                            <ChevronDown className="w-4 h-4 text-slate-500" />
                         </div>
-                    ))}
+                        <label className="absolute -top-2.5 left-3 px-1 bg-white text-xs text-slate-600">
+                            Category:
+                        </label>
+                    </div>
+
+                    {/* Status Filter */}
+                    {/* <div className="relative">
+                        <select
+                            // value={status}
+                            // onChange={(e) => setStatus(e.target.value)}
+                            className="appearance-none bg-white border border-slate-300 rounded-lg px-4 py-2.5 pr-10 text-sm text-slate-700 hover:border-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-pointer"
+                        >
+                            <option>All</option>
+                            <option>Pending</option>
+                            <option>In Progress</option>
+                            <option>Completed</option>
+                        </select>
+                        <div className="absolute inset-y-0 right-3 flex items-center pointer-events-none">
+                            <ChevronDown className="w-4 h-4 text-slate-500" />
+                        </div>
+                        <label className="absolute -top-2.5 left-3 px-1 bg-white text-xs text-slate-600">
+                            Status:
+                        </label>
+                    </div> */}
                 </div>
 
-               
-
+                {/* Add Item Button */}
+                <button className="bg-blue-500 hover:bg-blue-600 text-white font-semibold px-6 py-2.5 rounded-lg shadow-sm hover:shadow-md transition-all flex items-center gap-2">
+                    <Plus className="w-5 h-5" />
+                    Add Item
+                </button>
             </div>
-        </section>
+
+            {loading ? (
+                <div className="flex justify-center items-center h-full w-full">
+                    <Spinner className="size-10" />
+                </div>
+            ) : (
+                <ProductionTable items={toProduce} />
+            )}
+
+        </div>
+
     );
 }
