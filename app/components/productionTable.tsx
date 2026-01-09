@@ -10,6 +10,7 @@ import {
     TableRow,
 } from "@/components/ui/table";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import FoodImage from "./foodImage";
 
 interface ProductionTableProps {
     items: Array<{
@@ -60,11 +61,7 @@ export function ProductionTable({ items }: ProductionTableProps) {
                             >
                                 {/* Item + Image */}
                                 <TableCell className="flex items-center gap-4 font-semibold text-slate-800">
-                                    <img
-                                         src="/bakery.png"
-                                        alt={item.name}
-                                        className="w-12 h-12 rounded-lg object-cover"
-                                    />
+                                    <FoodImage name={item.name} />
                                     <span>{item.name}</span>
                                 </TableCell>
 
